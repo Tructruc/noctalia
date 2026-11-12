@@ -569,7 +569,8 @@
     "width": "Width",
     "wifi": "Wi-Fi",
     "windows": "Windows",
-    "yes": "Yes"
+    "yes": "Yes",
+    "vpn": "VPN"
   },
   "control-center": {
     "power-profile": {
@@ -1825,6 +1826,55 @@
       "daily-fetch-now": "Fetch now",
       "daily-status-idle": "No image fetched yet",
       "daily-status-fetching": "Fetching…"
+    },
+    "vpn": {
+      "title": "VPN",
+      "description": "OpenVPN and WireGuard profiles managed by NetworkManager.",
+      "empty": "No VPN profiles yet. Import an .ovpn or .conf file, or create one.",
+      "connected": "Connected",
+      "available": "Available",
+      "connecting": "Connecting…",
+      "disconnecting": "Disconnecting…",
+      "cancel": "Cancel",
+      "cancel-tooltip": "Abort this activation",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "import": "Import profile",
+      "import-tooltip": "Import an .ovpn or WireGuard .conf file",
+      "create": "New profile",
+      "create-tooltip": "Create a profile from scratch",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete-confirm": "Delete {name}? This removes the profile from NetworkManager.",
+      "name": "Name",
+      "name-desc": "How the profile appears in the list.",
+      "type": "Type",
+      "type-desc": "OpenVPN or WireGuard.",
+      "gateway": "Gateway",
+      "gateway-desc": "Server hostname or address, e.g. us1234.example.com.",
+      "username": "Username",
+      "username-desc": "OpenVPN username, if the server needs one.",
+      "password": "Password",
+      "password-desc": "Stored in the profile's secrets.",
+      "private-key": "Private key",
+      "private-key-desc": "WireGuard interface private key.",
+      "address": "Address",
+      "address-desc": "Interface address, e.g. 10.0.0.2/32.",
+      "peer-public-key": "Peer public key",
+      "peer-public-key-desc": "WireGuard public key of the server.",
+      "peer-endpoint": "Peer endpoint",
+      "peer-endpoint-desc": "host:port of the WireGuard server.",
+      "allowed-ips": "Allowed IPs",
+      "allowed-ips-desc": "Routed through the tunnel. 0.0.0.0/0 sends everything.",
+      "autoconnect": "Connect automatically",
+      "autoconnect-desc": "Let NetworkManager bring this VPN up on its own.",
+      "save": "Save",
+      "cancel-edit": "Cancel",
+      "file-path": "File path",
+      "file-path-desc": "Absolute path to the .ovpn or .conf file.",
+      "import-type": "File type",
+      "import-type-desc": "What kind of profile the file contains.",
+      "error": "Error"
     }
   },
   "placeholders": {
@@ -1997,7 +2047,16 @@
     },
     "vpn": {
       "connected": "Connected to '{name}'",
-      "disconnected": "Disconnected from '{name}'"
+      "disconnected": "Disconnected from '{name}'",
+      "cancelled": "{name} activation cancelled",
+      "removed": "{name} deleted",
+      "remove-failed": "Could not delete {name}",
+      "imported": "VPN profile imported",
+      "import-failed": "Could not import the VPN profile",
+      "created": "VPN profile created",
+      "create-failed": "Could not create the VPN profile",
+      "saved": "VPN profile saved",
+      "save-failed": "Could not save the VPN profile"
     },
     "wallpaper-colors": {
       "disabled": "Wallpaper colors disabled",

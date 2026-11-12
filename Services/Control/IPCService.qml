@@ -722,6 +722,50 @@ Singleton {
   }
 
   IpcHandler {
+    target: "vpn"
+    function status(): string {
+      const list = [];
+      for (const uuid in VPNService.connections) {
+        const c = VPNService.connections[uuid];
+        list.push({
+                    "uuid": c.uuid,
+                    "name": c.name,
+                    "type": c.type,
+                    "active": c.active,
+                    "state": c.state,
+                    "autoconnect": c.autoconnect
+                  });
+      }
+      return JSON.stringify({
+                              "connecting": VPNService.connecting,
+                              "connectingUuid": VPNService.connectingUuid,
+                              "disconnecting": VPNService.disconnecting,
+                              "busy": VPNService.busy,
+                              "lastError": VPNService.lastError,
+                              "connections": list
+                            });
+    }
+    function refresh() {
+      VPNService.refresh();
+    }
+    function connect(uuid: string) {
+      VPNService.connect(uuid);
+    }
+    function disconnect(uuid: string) {
+      VPNService.disconnect(uuid);
+    }
+    function cancel() {
+      VPNService.cancel();
+    }
+    function remove(uuid: string) {
+      VPNService.remove(uuid);
+    }
+    function importFile(type: string, path: string) {
+      VPNService.importFile(type, path);
+    }
+  }
+
+  IpcHandler {
     target: "bluetooth"
     function toggle() {
       BluetoothService.setBluetoothEnabled(!BluetoothService.enabled);
