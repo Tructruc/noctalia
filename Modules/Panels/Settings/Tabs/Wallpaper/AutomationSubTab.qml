@@ -62,4 +62,91 @@ ColumnLayout {
       }
     }
   }
+
+  NDivider {
+    Layout.fillWidth: true
+  }
+
+  NLabel {
+    label: I18n.tr("panels.wallpaper.daily-label")
+    description: I18n.tr("panels.wallpaper.daily-description")
+  }
+
+  NToggle {
+    label: I18n.tr("panels.wallpaper.daily-enable-label")
+    description: I18n.tr("panels.wallpaper.daily-enable-description")
+    checked: Settings.data.wallpaper.dailyWallpaperEnabled
+    onToggled: checked => Settings.data.wallpaper.dailyWallpaperEnabled = checked
+  }
+
+  ColumnLayout {
+    enabled: Settings.data.wallpaper.dailyWallpaperEnabled
+    spacing: Style.marginL
+    Layout.fillWidth: true
+
+    NComboBox {
+      label: I18n.tr("panels.wallpaper.daily-source-label")
+      description: I18n.tr("panels.wallpaper.daily-source-description")
+      Layout.fillWidth: true
+      model: DailyWallpaperService.sources
+      currentKey: Settings.data.wallpaper.dailyWallpaperSource || "nasa-apod"
+      onSelected: key => Settings.data.wallpaper.dailyWallpaperSource = key
+      defaultValue: Settings.getDefaultValue("wallpaper.dailyWallpaperSource")
+    }
+
+    NTextInput {
+      visible: (Settings.data.wallpaper.dailyWallpaperSource || "nasa-apod") === "nasa-apod"
+      label: I18n.tr("panels.wallpaper.daily-apikey-label")
+      description: I18n.tr("panels.wallpaper.daily-apikey-description")
+      Layout.fillWidth: true
+      text: Settings.data.wallpaper.dailyWallpaperApiKey || ""
+      placeholderText: "DEMO_KEY"
+      onTextChanged: {
+        if (text !== Settings.data.wallpaper.dailyWallpaperApiKey) {
+          Settings.data.wallpaper.dailyWallpaperApiKey = text;
+        }
+      }
+    }
+
+    NLabel {
+      visible: (Settings.data.wallpaper.dailyWallpaperSource || "nasa-apod") === "nasa-apod" && DailyWallpaperService.usingDemoKey
+      label: I18n.tr("panels.wallpaper.daily-demo-key-warning")
+      labelSize: Style.fontSizeS
+    }
+
+    NSpinBox {
+      label: I18n.tr("panels.wallpaper.daily-keepdays-label")
+      description: I18n.tr("panels.wallpaper.daily-keepdays-description")
+      Layout.fillWidth: true
+      from: 1
+      to: 60
+      stepSize: 1
+      suffix: "d"
+      value: Settings.data.wallpaper.dailyWallpaperKeepDays
+      defaultValue: Settings.getDefaultValue("wallpaper.dailyWallpaperKeepDays")
+      onValueChanged: {
+        if (value !== Settings.data.wallpaper.dailyWallpaperKeepDays) {
+          Settings.data.wallpaper.dailyWallpaperKeepDays = value;
+        }
+      }
+    }
+
+    RowLayout {
+      Layout.fillWidth: true
+      spacing: Style.marginM
+
+      NButton {
+        text: I18n.tr("panels.wallpaper.daily-fetch-now")
+        icon: "refresh"
+        enabled: !DailyWallpaperService.fetching
+        onClicked: DailyWallpaperService.check()
+      }
+
+      NLabel {
+        Layout.fillWidth: true
+        label: DailyWallpaperService.fetching ? I18n.tr("panels.wallpaper.daily-status-fetching") : (DailyWallpaperService.lastError !== "" ? DailyWallpaperService.lastError : (DailyWallpaperService.lastAppliedPath !== "" ? DailyWallpaperService.lastAppliedPath : I18n.tr("panels.wallpaper.daily-status-idle")))
+        labelSize: Style.fontSizeS
+      }
+    }
+  }
 }

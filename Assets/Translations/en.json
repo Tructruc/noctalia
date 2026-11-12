@@ -1813,7 +1813,21 @@
       "view-mode-browse": "Browse directories",
       "view-mode-cycle-tooltip": "View mode: {mode} (click to change)",
       "view-mode-recursive": "Flattened subdirectories",
-      "view-mode-single": "Root directory"
+      "view-mode-single": "Root directory",
+      "daily-label": "Daily wallpaper",
+      "daily-description": "Download one new wallpaper per day from a remote source. Images are saved into your wallpaper directory and appear in the picker like any other.",
+      "daily-enable-label": "Fetch a daily wallpaper",
+      "daily-enable-description": "Check once a day for a new image and apply it. Takes precedence over the scheduled change above while it is on.",
+      "daily-source-label": "Source",
+      "daily-source-description": "Where the daily image comes from.",
+      "daily-apikey-label": "NASA API key",
+      "daily-apikey-description": "Optional. Leave empty to use NASA's shared DEMO_KEY, which is rate limited to about 30 requests per hour.",
+      "daily-demo-key-warning": "Using NASA's DEMO_KEY — fine for one image a day, but get a free key at api.nasa.gov if you see rate-limit errors.",
+      "daily-keepdays-label": "Keep downloaded images",
+      "daily-keepdays-description": "Delete daily images older than this many days.",
+      "daily-fetch-now": "Fetch now",
+      "daily-status-idle": "No image fetched yet",
+      "daily-status-fetching": "Fetching…"
     }
   },
   "placeholders": {

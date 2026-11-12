@@ -207,6 +207,16 @@ Singleton {
     }
   }
 
+  // A daily wallpaper is written straight into the wallpaper directory, so the
+  // picker needs to rescan to see it.
+  Connections {
+    target: DailyWallpaperService
+    function onLastAppliedPathChanged() {
+      if (DailyWallpaperService.lastAppliedPath !== "")
+        root.refreshWallpapersList();
+    }
+  }
+
   // -------------------------------------------------
   function init() {
     Logger.i("Wallpaper", "Service started");

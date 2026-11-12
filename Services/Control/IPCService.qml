@@ -650,6 +650,37 @@ Singleton {
     function enableAutomation() {
       Settings.data.wallpaper.automationEnabled = true;
     }
+
+    // ---- daily wallpaper ----
+    function dailyRefresh() {
+      DailyWallpaperService.check();
+    }
+    function dailyEnable() {
+      Settings.data.wallpaper.dailyWallpaperEnabled = true;
+    }
+    function dailyDisable() {
+      Settings.data.wallpaper.dailyWallpaperEnabled = false;
+    }
+    function dailySetSource(source: string) {
+      if (source === "nasa-apod" || source === "nasa-iotd" || source === "bing") {
+        Settings.data.wallpaper.dailyWallpaperSource = source;
+      } else {
+        Logger.w("IPC", "wallpaper daily-set-source: unknown source: " + source);
+      }
+    }
+    function dailyStatus(): string {
+      return JSON.stringify({
+                              "enabled": Settings.data.wallpaper.dailyWallpaperEnabled,
+                              "source": DailyWallpaperService.sourceKey,
+                              "sourceName": DailyWallpaperService.sourceName,
+                              "fetching": DailyWallpaperService.fetching,
+                              "lastAppliedDate": DailyWallpaperService.lastAppliedDate,
+                              "lastAppliedPath": DailyWallpaperService.lastAppliedPath,
+                              "lastStatus": DailyWallpaperService.lastStatus,
+                              "lastError": DailyWallpaperService.lastError,
+                              "usingDemoKey": DailyWallpaperService.usingDemoKey
+                            });
+    }
   }
 
   IpcHandler {

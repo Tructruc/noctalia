@@ -446,6 +446,16 @@ Singleton {
       property list<var> favorites: []
       // Format: [{ "path": "...", "appearance": "light"|"dark", "colorScheme": "...", "darkMode": bool, "useWallpaperColors": bool, "generationMethod": "...", "paletteColors": [...] }]
       // Legacy entries omit "appearance" and use darkMode to infer light vs dark slot.
+
+      // Daily wallpaper: fetches one image per day from a remote source.
+      // Handled by DailyWallpaperService; images land in the wallpaper
+      // directory as daily-<source>-<date>.jpg so the picker sees them too.
+      property bool dailyWallpaperEnabled: false
+      property string dailyWallpaperSource: "nasa-apod" // "nasa-apod" | "nasa-iotd" | "bing"
+      property string dailyWallpaperApiKey: "" // APOD only; empty uses NASA's DEMO_KEY
+      property string dailyWallpaperLocale: "" // Bing market, e.g. "en-US"; empty uses en-US
+      property int dailyWallpaperKeepDays: 5 // prune daily-*.jpg older than this
+      property string dailyWallpaperDirectory: "" // empty uses the wallpaper directory
     }
 
     // applauncher
