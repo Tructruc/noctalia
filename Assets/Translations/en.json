@@ -24,7 +24,9 @@
     "show-active-only": "Show active only",
     "show-all": "Show all",
     "toggle-mute": "Toggle mute",
-    "widget-settings": "Widget settings"
+    "widget-settings": "Widget settings",
+    "cancel-vpn": "Cancel connecting to {name}",
+    "manage-vpn": "Manage VPN profiles…"
   },
   "authentication": {
     "error": "Authentication error",

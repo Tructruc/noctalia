@@ -3,6 +3,7 @@ import QtQuick.Controls
 import Quickshell
 import qs.Commons
 import qs.Modules.Bar.Extras
+import qs.Modules.Panels.Settings // For SettingsPanel
 import qs.Services.Networking
 import qs.Services.UI
 import qs.Widgets
@@ -44,6 +45,20 @@ Item {
 
     model: {
       const items = [];
+
+      // An activation in flight gets cancel at the top: it is the only way
+      // out of a connection that is not going to complete.
+      if (VPNService.connectingUuid) {
+        const pending = VPNService.connections[VPNService.connectingUuid];
+        items.push({
+                     "label": I18n.tr("actions.cancel-vpn", {
+                                        "name": pending ? pending.name : ""
+                                      }),
+                     "action": "cancel",
+                     "icon": "x"
+                   });
+      }
+
       const active = VPNService.activeConnections;
       for (let i = 0; i < active.length; ++i) {
         const conn = active[i];
@@ -67,6 +82,11 @@ Item {
                    });
       }
       items.push({
+                   "label": I18n.tr("actions.manage-vpn"),
+                   "action": "manage",
+                   "icon": "adjustments"
+                 });
+      items.push({
                    "label": I18n.tr("actions.widget-settings"),
                    "action": "widget-settings",
                    "icon": "settings"
@@ -83,6 +103,14 @@ Item {
                    }
                    if (action === "widget-settings") {
                      BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+                     return;
+                   }
+                   if (action === "manage") {
+                     SettingsPanelService.openToTab(SettingsPanel.Tab.Connections, 2, screen);
+                     return;
+                   }
+                   if (action === "cancel") {
+                     VPNService.cancel();
                      return;
                    }
                    if (action.startsWith("connect:")) {
@@ -126,6 +154,11 @@ Item {
     autoHide: false
     forceOpen: !isBarVertical && root.displayMode === "alwaysShow"
     forceClose: isBarVertical || root.displayMode === "alwaysHide" || !pill.text
+    // No VPN panel to toggle, so the menu is the primary surface: left click
+    // opens it, right click keeps the conventional behaviour.
+    onClicked: {
+      PanelService.showContextMenu(contextMenu, pill, screen);
+    }
     onRightClicked: {
       PanelService.showContextMenu(contextMenu, pill, screen);
     }
