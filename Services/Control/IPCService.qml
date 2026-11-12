@@ -677,8 +677,7 @@ Singleton {
                               "lastAppliedDate": DailyWallpaperService.lastAppliedDate,
                               "lastAppliedPath": DailyWallpaperService.lastAppliedPath,
                               "lastStatus": DailyWallpaperService.lastStatus,
-                              "lastError": DailyWallpaperService.lastError,
-                              "usingDemoKey": DailyWallpaperService.usingDemoKey
+                              "lastError": DailyWallpaperService.lastError
                             });
     }
   }

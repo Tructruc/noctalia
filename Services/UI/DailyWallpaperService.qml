@@ -14,8 +14,10 @@ import qs.Commons
 // settings UI.
 //
 // Sources:
-//   nasa-apod  NASA Astronomy Picture of the Day, via the official api.nasa.gov
-//              endpoint. Skips days whose APOD is a video.
+//   nasa-apod  NASA Astronomy Picture of the Day, scraped from the APOD page.
+//              The api.nasa.gov endpoint is not used: since NASA's site
+//              migration it returns the site's logo and title for every date
+//              instead of the actual picture.
 //   nasa-iotd  NASA "Image of the Day", scraped from nasa.gov (no API).
 //   bing       Bing's daily homepage image, via the HPImageArchive JSON API.
 //
@@ -65,13 +67,6 @@ Singleton {
     return sourceKey;
   }
 
-  readonly property string apiKey: {
-    var k = (Settings.data.wallpaper.dailyWallpaperApiKey || "").trim();
-    return k.length > 0 ? k : "DEMO_KEY";
-  }
-
-  readonly property bool usingDemoKey: (Settings.data.wallpaper.dailyWallpaperApiKey || "").trim().length === 0
-
   // ---------------------------------------------------------------- paths
   function todayString() {
     var d = new Date();
@@ -90,9 +85,19 @@ Singleton {
     return dir;
   }
 
+  // Each source needs its own filename. nasa-apod and nasa-iotd are different
+  // images, so sharing a "nasa" prefix made one silently reuse the other's
+  // file and never fetch.
+  function sourcePrefix(source) {
+    if (source === "bing")
+      return "bing";
+    if (source === "nasa-iotd")
+      return "iotd";
+    return "apod";
+  }
+
   function pathFor(source, date) {
-    var prefix = source === "bing" ? "bing" : "nasa";
-    return targetDirectory() + "daily-" + prefix + "-" + date + ".jpg";
+    return targetDirectory() + "daily-" + sourcePrefix(source) + "-" + date + ".jpg";
   }
 
   // ---------------------------------------------------------------- check
@@ -190,12 +195,36 @@ Singleton {
   }
 
   // ---------------------------------------------------------------- nasa apod
-  function resolveNasaApod(date) {
-    var url = "https://api.nasa.gov/planetary/apod?api_key=" + encodeURIComponent(apiKey) + "&thumbs=true";
-    if (date)
-      url += "&date=" + date;
-    apodProc.command = ["curl", "-fsSL", "--max-time", "30", url];
+  function resolveNasaApod() {
+    apodProc.command = ["curl", "-fsSL", "--max-time", "30", "-A", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36", "https://science.nasa.gov/apod/"];
     apodProc.running = true;
+  }
+
+  // The current APOD is an <a href=".../image-article/apod-<date>-..."> that
+  // wraps the picture, which is the only reliable marker on the page: the
+  // og:image meta tag is stale and the page carries older APOD thumbnails too.
+  function _apodImageUrl(page) {
+    var m = page.match(/<a[^>]+href="[^"]*image-article\/apod-[^"]*"[^>]*>\s*<img[^>]+?(?:srcset|src)="([^"?\s]+)/i);
+    if (m) {
+      // dynamicimage renditions scale with ?w=; the page only offers up to
+      // 1280w, so ask for a 4K-class rendition instead of the default crop.
+      var u = m[1];
+      if (u.indexOf("/dynamicimage/") !== -1 && u.indexOf("?") === -1)
+        u += "?w=3840";
+      return u;
+    }
+
+    // Fallback: an APOD asset dated to the current year and month.
+    var d = new Date();
+    var months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+    var tag = "/" + d.getFullYear() + "/" + months[d.getMonth()] + "/";
+    var re = /https:\/\/assets\.science\.nasa\.gov\/[^"'\s]*cds\/apod\/apod\/\d{4}\/[a-z]+\/[^"?\s]+\.(?:jpg|jpeg|png)/gi;
+    var all = page.match(re) || [];
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].indexOf(tag) !== -1)
+        return all[i];
+    }
+    return "";
   }
 
   // ---------------------------------------------------------------- nasa iotd
@@ -275,35 +304,21 @@ Singleton {
       onStreamFinished: {
         if (root._resolving !== "nasa-apod")
           return;
-        var data = null;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          root._fail("APOD: could not parse response: " + e);
+        var page = text || "";
+        if (page.length === 0) {
+          root._fail("APOD: empty page");
           return;
         }
-        if (!data) {
-          root._fail("APOD: empty response");
-          return;
-        }
-        if (data.error) {
-          root._fail("APOD: " + (data.error.message || data.error));
-          return;
-        }
-        // APOD returns a video some days; there is no still to use.
-        if (data.media_type && data.media_type !== "image") {
-          root.lastStatus = "APOD for " + (data.date || root._date) + " is a " + data.media_type + " — keeping current wallpaper";
+        var url = root._apodImageUrl(page);
+        if (!url) {
+          // Some days the APOD is a video and the page carries no still.
+          root.lastStatus = "APOD has no still image today (video or embed) — keeping current wallpaper";
           Logger.i("DailyWallpaper", root.lastStatus);
           root.fetching = false;
           root._resolving = "";
           return;
         }
-        var url = data.hdurl || data.url || "";
-        if (!url) {
-          root._fail("APOD: no image URL in response");
-          return;
-        }
-        root._beginDownload(url, data.url && data.url !== url ? data.url : "");
+        root._beginDownload(url, "");
       }
     }
     onExited: (exitCode, _status) => {

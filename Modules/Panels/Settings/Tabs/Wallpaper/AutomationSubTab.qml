@@ -94,26 +94,6 @@ ColumnLayout {
       defaultValue: Settings.getDefaultValue("wallpaper.dailyWallpaperSource")
     }
 
-    NTextInput {
-      visible: (Settings.data.wallpaper.dailyWallpaperSource || "nasa-apod") === "nasa-apod"
-      label: I18n.tr("panels.wallpaper.daily-apikey-label")
-      description: I18n.tr("panels.wallpaper.daily-apikey-description")
-      Layout.fillWidth: true
-      text: Settings.data.wallpaper.dailyWallpaperApiKey || ""
-      placeholderText: "DEMO_KEY"
-      onTextChanged: {
-        if (text !== Settings.data.wallpaper.dailyWallpaperApiKey) {
-          Settings.data.wallpaper.dailyWallpaperApiKey = text;
-        }
-      }
-    }
-
-    NLabel {
-      visible: (Settings.data.wallpaper.dailyWallpaperSource || "nasa-apod") === "nasa-apod" && DailyWallpaperService.usingDemoKey
-      label: I18n.tr("panels.wallpaper.daily-demo-key-warning")
-      labelSize: Style.fontSizeS
-    }
-
     NSpinBox {
       label: I18n.tr("panels.wallpaper.daily-keepdays-label")
       description: I18n.tr("panels.wallpaper.daily-keepdays-description")
