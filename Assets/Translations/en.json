@@ -2263,7 +2263,8 @@
       "security-wpa3": "WPA3",
       "security-wpa3-ent": "WPA3 Enterprise",
       "show-password": "Show password",
-      "title": "Wi‑Fi"
+      "title": "Wi‑Fi",
+      "rescan": "Rescan networks"
     },
     "signal": {
       "excellent": "Excellent",

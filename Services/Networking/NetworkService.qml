@@ -74,6 +74,16 @@ Singleton {
   property var activeWifiDetails: ({})
   property bool wifiConnected: false
   property string activeWifiIf: ""
+  // The networks map is keyed by SSID and each entry carries `connected`, so
+  // the active network's name is the key of the connected entry.
+  readonly property string connectedSsid: {
+    const ns = networks;
+    for (const key in ns) {
+      if (ns[key] && ns[key].connected)
+        return key;
+    }
+    return "";
+  }
   property bool wifiDetailsLoading: false
   property double activeWifiDetailsTimestamp: 0
   property bool wifiInit: false
@@ -98,6 +108,28 @@ Singleton {
         return;
       }
       wifiDebounce.restart();
+    }
+  }
+
+  // After resume NetworkManager's scan cache is stale: the radio comes back
+  // with the results from before suspend, so the list shows networks from
+  // wherever the machine was. Rescan once the link has settled.
+  Connections {
+    target: Time
+    function onResumed() {
+      Logger.i("Network", "System resumed - rescanning Wi-Fi");
+      resumeScanTimer.restart();
+    }
+  }
+
+  Timer {
+    id: resumeScanTimer
+    interval: 3000
+    repeat: false
+    onTriggered: {
+      if (root.wifiEnabled && !root.scanningActive) {
+        root.scan();
+      }
     }
   }
 

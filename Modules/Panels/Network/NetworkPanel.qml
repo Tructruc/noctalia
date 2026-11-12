@@ -149,6 +149,37 @@ SmartPanel {
               baseSize: Style.baseWidgetSize * 0.7 // Slightly smaller
             }
 
+            // Rescan. After resume or moving, NetworkManager hands back the
+            // scan results it cached before the machine slept, so the list
+            // shows networks that are no longer in range. This forces a fresh
+            // scan without cycling the radio off and on.
+            Item {
+              visible: panelViewMode === "wifi"
+              Layout.preferredWidth: Style.baseWidgetSize * 0.8
+              Layout.preferredHeight: Style.baseWidgetSize * 0.8
+
+              NIconButton {
+                anchors.centerIn: parent
+                visible: !NetworkService.scanningActive
+                icon: "refresh"
+                tooltipText: I18n.tr("wifi.panel.rescan")
+                baseSize: Style.baseWidgetSize * 0.8
+                enabled: NetworkService.wifiEnabled && !NetworkService.airplaneModeEnabled
+                onClicked: {
+                  NetworkService.scan();
+                  NetworkService.refreshActiveWifiDetails();
+                }
+              }
+
+              NBusyIndicator {
+                anchors.centerIn: parent
+                visible: NetworkService.scanningActive
+                running: visible
+                color: Color.mPrimary
+                size: Style.baseWidgetSize * 0.55
+              }
+            }
+
             NIconButton {
               icon: "settings"
               tooltipText: I18n.tr("tooltips.open-settings")

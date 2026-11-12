@@ -703,6 +703,22 @@ Singleton {
                                               networkPanel?.toggle(null, "Network");
                                             });
     }
+    // Force a Wi-Fi rescan. Useful from a keybind after resume, when
+    // NetworkManager still reports the networks it saw before sleeping.
+    function rescan() {
+      NetworkService.scan();
+      NetworkService.refreshActiveWifiDetails();
+    }
+    function wifiStatus(): string {
+      return JSON.stringify({
+                              "enabled": NetworkService.wifiEnabled,
+                              "available": NetworkService.wifiAvailable,
+                              "scanning": NetworkService.scanningActive,
+                              "networks": Object.keys(NetworkService.networks).length,
+                              "connected": NetworkService.wifiConnected,
+                              "ssid": NetworkService.connectedSsid
+                            });
+    }
   }
 
   IpcHandler {
