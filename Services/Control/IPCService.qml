@@ -723,6 +723,12 @@ Singleton {
 
   IpcHandler {
     target: "vpn"
+    function togglePanel() {
+      root.screenDetector.withCurrentScreen(screen => {
+                                              var vpnPanel = PanelService.getPanel("vpnPanel", screen);
+                                              vpnPanel?.toggle(null);
+                                            });
+    }
     function status(): string {
       const list = [];
       for (const uuid in VPNService.connections) {

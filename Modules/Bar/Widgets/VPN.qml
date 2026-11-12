@@ -154,10 +154,12 @@ Item {
     autoHide: false
     forceOpen: !isBarVertical && root.displayMode === "alwaysShow"
     forceClose: isBarVertical || root.displayMode === "alwaysHide" || !pill.text
-    // No VPN panel to toggle, so the menu is the primary surface: left click
-    // opens it, right click keeps the conventional behaviour.
+    // Left click opens the VPN panel, matching the network and bluetooth
+    // widgets. Right click keeps the quick connect/disconnect menu.
     onClicked: {
-      PanelService.showContextMenu(contextMenu, pill, screen);
+      var p = PanelService.getPanel("vpnPanel", screen);
+      if (p)
+        p.toggle(pill);
     }
     onRightClicked: {
       PanelService.showContextMenu(contextMenu, pill, screen);

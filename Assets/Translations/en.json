@@ -1876,7 +1876,8 @@
       "file-path-desc": "Absolute path to the .ovpn or .conf file.",
       "import-type": "File type",
       "import-type-desc": "What kind of profile the file contains.",
-      "error": "Error"
+      "error": "Error",
+      "refresh-tooltip": "Refresh the profile list"
     }
   },
   "placeholders": {

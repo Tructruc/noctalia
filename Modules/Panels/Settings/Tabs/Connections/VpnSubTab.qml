@@ -13,6 +13,10 @@ ColumnLayout {
   spacing: Style.marginL
   Layout.fillWidth: true
 
+  // When hosted inside VpnPanel the panel supplies its own header, so the
+  // title/description block is hidden and only the list + actions remain.
+  property bool showOnlyLists: false
+
   property string editingUuid: ""
   property bool creating: false
   property string pendingDeleteUuid: ""
@@ -111,6 +115,7 @@ ColumnLayout {
 
   // ---------------------------------------------------------------- header
   NLabel {
+    visible: !root.showOnlyLists
     label: I18n.tr("panels.vpn.title")
     description: I18n.tr("panels.vpn.description")
   }
@@ -148,6 +153,7 @@ ColumnLayout {
   }
 
   NDivider {
+    visible: !root.showOnlyLists
     Layout.fillWidth: true
   }
 
