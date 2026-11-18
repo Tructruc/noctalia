@@ -1877,7 +1877,22 @@
       "import-type": "File type",
       "import-type-desc": "What kind of profile the file contains.",
       "error": "Error",
-      "refresh-tooltip": "Refresh the profile list"
+      "refresh-tooltip": "Refresh the profile list",
+      "tailscale": "Tailscale",
+      "tailscale-stopped": "Disconnected",
+      "tailscale-running": "Connected",
+      "tailscale-needs-login": "Login required",
+      "tailscale-starting": "Starting…",
+      "tailscale-connect": "Connect",
+      "tailscale-disconnect": "Disconnect",
+      "tailscale-exit-node": "Exit node",
+      "tailscale-exit-node-desc": "Route internet traffic through a peer. \"None\" keeps traffic local.",
+      "tailscale-exit-node-none": "None",
+      "tailscale-ip": "This node",
+      "tailscale-peers-online": "{count} peer(s) online",
+      "tailscale-login-hint": "Open the login URL printed below, or run: sudo tailscale up",
+      "tailscale-auth-failed": "Authentication was cancelled or failed.",
+      "tailscale-authenticating": "Waiting for authentication…"
     }
   },
   "placeholders": {

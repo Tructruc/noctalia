@@ -152,8 +152,108 @@ ColumnLayout {
     }
   }
 
+  // ---------------------------------------------------------------- tailscale
+  // Tailscale is not a NetworkManager profile — it has its own daemon and
+  // state machine — so it gets its own block above the profile list rather
+  // than being forced into it.
+  NBox {
+    id: tailscaleBox
+    visible: TailscaleService.available
+    Layout.fillWidth: true
+    Layout.preferredHeight: tsCol.implicitHeight + Style.margin2L
+    color: Color.mSurface
+
+    ColumnLayout {
+      id: tsCol
+      anchors.fill: parent
+      anchors.margins: Style.marginL
+      spacing: Style.marginM
+
+      RowLayout {
+        Layout.fillWidth: true
+        spacing: Style.marginM
+
+        NIcon {
+          icon: TailscaleService.running ? "network" : "network-off"
+          pointSize: Style.fontSizeL
+          color: TailscaleService.running ? Color.mPrimary : Color.mOnSurfaceVariant
+        }
+
+        ColumnLayout {
+          Layout.fillWidth: true
+          spacing: 0
+
+          NLabel {
+            label: I18n.tr("panels.vpn.tailscale")
+            labelSize: Style.fontSizeM
+          }
+
+          NLabel {
+            label: TailscaleService.running ? (I18n.tr("panels.vpn.tailscale-running") + (TailscaleService.primaryIp !== "" ? " · " + TailscaleService.primaryIp : "")) : (TailscaleService.needsLogin ? I18n.tr("panels.vpn.tailscale-needs-login") : (TailscaleService.backendState === "Starting" ? I18n.tr("panels.vpn.tailscale-starting") : I18n.tr("panels.vpn.tailscale-stopped")))
+            labelSize: Style.fontSizeXS
+          }
+        }
+
+        NButton {
+          text: TailscaleService.running ? I18n.tr("panels.vpn.tailscale-disconnect") : I18n.tr("panels.vpn.tailscale-connect")
+          icon: TailscaleService.running ? "plug-off" : "plug"
+          outlined: !TailscaleService.running
+          enabled: !TailscaleService.loading
+          onClicked: {
+            if (TailscaleService.running) {
+              TailscaleService.down();
+            } else {
+              TailscaleService.up();
+            }
+          }
+        }
+      }
+
+      NLabel {
+        visible: TailscaleService.onlinePeerCount > 0
+        label: I18n.tr("panels.vpn.tailscale-peers-online", {
+                         "count": TailscaleService.onlinePeerCount
+                       })
+        labelSize: Style.fontSizeXS
+      }
+
+      NComboBox {
+        Layout.fillWidth: true
+        visible: TailscaleService.running && TailscaleService.exitNodeOptions.length > 0
+        label: I18n.tr("panels.vpn.tailscale-exit-node")
+        description: I18n.tr("panels.vpn.tailscale-exit-node-desc")
+        model: {
+          const m = [
+            {
+              "key": "",
+              "name": I18n.tr("panels.vpn.tailscale-exit-node-none")
+            }
+          ];
+          const opts = TailscaleService.exitNodeOptions;
+          for (let i = 0; i < opts.length; ++i) {
+            const o = opts[i];
+            const key = o.ips && o.ips.length > 0 ? String(o.ips[0]) : o.dnsName;
+            m.push({
+                     "key": key,
+                     "name": o.name
+                   });
+          }
+          return m;
+        }
+        currentKey: TailscaleService.exitNode
+        onSelected: key => TailscaleService.setExitNode(key)
+      }
+
+      NLabel {
+        visible: TailscaleService.loading || TailscaleService.lastError !== ""
+        label: TailscaleService.lastError !== "" ? TailscaleService.lastError : I18n.tr("panels.vpn.tailscale-authenticating")
+        labelSize: Style.fontSizeXS
+      }
+    }
+  }
+
   NDivider {
-    visible: !root.showOnlyLists
+    visible: TailscaleService.available
     Layout.fillWidth: true
   }
 

@@ -722,6 +722,34 @@ Singleton {
   }
 
   IpcHandler {
+    target: "tailscale"
+    function status(): string {
+      return JSON.stringify({
+                              "available": TailscaleService.available,
+                              "backendState": TailscaleService.backendState,
+                              "running": TailscaleService.running,
+                              "ip": TailscaleService.primaryIp,
+                              "peers": TailscaleService.peers.length,
+                              "onlinePeers": TailscaleService.onlinePeerCount,
+                              "exitNode": TailscaleService.exitNode,
+                              "lastError": TailscaleService.lastError
+                            });
+    }
+    function refresh() {
+      TailscaleService.refresh();
+    }
+    function up() {
+      TailscaleService.up();
+    }
+    function down() {
+      TailscaleService.down();
+    }
+    function setExitNode(value: string) {
+      TailscaleService.setExitNode(value);
+    }
+  }
+
+  IpcHandler {
     target: "vpn"
     function togglePanel() {
       root.screenDetector.withCurrentScreen(screen => {

@@ -132,7 +132,15 @@ Item {
     oppositeDirection: BarService.getPillDirection(root)
     customIconColor: Color.resolveColorKeyOptional(root.iconColorKey)
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
-    icon: VPNService.hasActiveConnection ? "shield-lock" : "shield"
+    // A NetworkManager profile keeps the shield; Tailscale on its own gets the
+    // network glyph so the two are distinguishable at a glance.
+    icon: {
+      if (VPNService.hasActiveConnection)
+        return "shield-lock";
+      if (TailscaleService.running)
+        return "network";
+      return "shield";
+    }
     text: {
       if (VPNService.activeConnections.length > 0) {
         return VPNService.activeConnections[0].name;
@@ -143,6 +151,8 @@ Item {
           return pending.name;
         }
       }
+      if (TailscaleService.running)
+        return I18n.tr("panels.vpn.tailscale");
       return "";
     }
     suffix: {
@@ -165,8 +175,15 @@ Item {
       PanelService.showContextMenu(contextMenu, pill, screen);
     }
     tooltipText: {
-      if (pill.text !== "") {
-        return pill.text;
+      const parts = [];
+      if (TailscaleService.running) {
+        parts.push(I18n.tr("panels.vpn.tailscale") + (TailscaleService.primaryIp !== "" ? " · " + TailscaleService.primaryIp : ""));
+      }
+      for (let i = 0; i < VPNService.activeConnections.length; ++i) {
+        parts.push(VPNService.activeConnections[i].name);
+      }
+      if (parts.length > 0) {
+        return parts.join("  ·  ");
       }
       return I18n.tr("tooltips.manage-vpn");
     }
