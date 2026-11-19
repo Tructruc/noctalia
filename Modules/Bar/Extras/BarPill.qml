@@ -10,6 +10,9 @@ Item {
   required property ShellScreen screen
 
   property string icon: ""
+  // Several glyphs in the same capsule, for state that is not one thing (a VPN
+  // profile and a tailnet, say). Takes precedence over `icon` when non-empty.
+  property var icons: []
   property string iconPosition: ""
   property string text: ""
   property string suffix: ""
@@ -56,6 +59,7 @@ Item {
       BarPillVertical {
         screen: root.screen
         icon: root.icon
+        icons: root.icons
         iconPosition: root.iconPosition
         text: root.text
         suffix: root.suffix
@@ -86,6 +90,7 @@ Item {
       BarPillHorizontal {
         screen: root.screen
         icon: root.icon
+        icons: root.icons
         iconPosition: root.iconPosition
         text: root.text
         suffix: root.suffix

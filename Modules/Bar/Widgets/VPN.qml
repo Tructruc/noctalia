@@ -132,14 +132,19 @@ Item {
     oppositeDirection: BarService.getPillDirection(root)
     customIconColor: Color.resolveColorKeyOptional(root.iconColorKey)
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
-    // A NetworkManager profile keeps the shield; Tailscale on its own gets the
-    // network glyph so the two are distinguishable at a glance.
-    icon: {
+    // One glyph per tunnel: the shield for a NetworkManager profile, the
+    // network glyph for Tailscale. Both are drawn when both are up, so
+    // connecting a profile does not hide the tailnet. The plain shield is the
+    // idle state and keeps the widget from disappearing.
+    icons: {
+      const list = [];
       if (VPNService.hasActiveConnection)
-        return "shield-lock";
+        list.push("shield-lock");
       if (TailscaleService.running)
-        return "network";
-      return "shield";
+        list.push("network");
+      if (list.length === 0)
+        list.push("shield");
+      return list;
     }
     text: {
       if (VPNService.activeConnections.length > 0) {
@@ -175,12 +180,13 @@ Item {
       PanelService.showContextMenu(contextMenu, pill, screen);
     }
     tooltipText: {
+      // Same order as the glyphs: the profile first, then the tailnet.
       const parts = [];
-      if (TailscaleService.running) {
-        parts.push(I18n.tr("panels.vpn.tailscale") + (TailscaleService.primaryIp !== "" ? " · " + TailscaleService.primaryIp : ""));
-      }
       for (let i = 0; i < VPNService.activeConnections.length; ++i) {
         parts.push(VPNService.activeConnections[i].name);
+      }
+      if (TailscaleService.running) {
+        parts.push(I18n.tr("panels.vpn.tailscale") + (TailscaleService.primaryIp !== "" ? " · " + TailscaleService.primaryIp : ""));
       }
       if (parts.length > 0) {
         return parts.join("  ·  ");

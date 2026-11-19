@@ -11,6 +11,9 @@ Item {
   required property ShellScreen screen
 
   property string icon: ""
+  // `icons` wins over `icon` when set. Each entry gets a pillHeight-wide cell,
+  // so a one-icon pill has exactly the geometry it always had.
+  property var icons: []
   property string text: ""
   property string suffix: ""
   property var tooltipText
@@ -29,7 +32,9 @@ Item {
 
   // Effective shown state (true if hovered/animated open or forced)
   readonly property bool revealed: !forceClose && (forceOpen || showPill)
-  readonly property bool hasIcon: root.icon !== ""
+  readonly property var iconList: (root.icons && root.icons.length > 0) ? root.icons : (root.icon !== "" ? [root.icon] : [])
+  readonly property bool hasIcon: root.iconList.length > 0
+  readonly property real iconAreaWidth: root.hasIcon ? root.pillHeight * root.iconList.length : 0
 
   signal shown
   signal hidden
@@ -61,11 +66,10 @@ Item {
   // Content width calculation (for implicit sizing)
   readonly property real contentWidth: {
     if (collapseToIcon) {
-      return hasIcon ? pillHeight : 0;
+      return iconAreaWidth;
     }
     var overlap = hasIcon ? pillOverlap : 0;
-    var baseWidth = hasIcon ? pillHeight : 0;
-    return baseWidth + Math.max(0, pill.width - overlap);
+    return iconAreaWidth + Math.max(0, pill.width - overlap);
   }
 
   // Fill parent to extend click area to full bar height
@@ -112,12 +116,15 @@ Item {
     x: {
       if (!hasIcon)
         return 0;
+      // The text grows out of the icon area, overlapping it by pillOverlap at
+      // the edge they share — the centre of a single icon, or the inner edge
+      // of a row of them, so extra glyphs are never drawn on top of the text.
       // iconPosition takes precedence, fallback to oppositeDirection
       if (iconPosition === "right")
-        return (iconCircle.x + iconCircle.width / 2) - width;
+        return (iconCircle.x + pillOverlap) - width;
       if (iconPosition === "left")
-        return (iconCircle.x + iconCircle.width / 2);
-      return oppositeDirection ? (iconCircle.x + iconCircle.width / 2) : (iconCircle.x + iconCircle.width / 2) - width;
+        return (iconCircle.x + iconCircle.width - pillOverlap);
+      return oppositeDirection ? (iconCircle.x + iconCircle.width - pillOverlap) : (iconCircle.x + pillOverlap) - width;
     }
 
     opacity: revealed ? Style.opacityFull : Style.opacityNone
@@ -179,7 +186,7 @@ Item {
 
   Rectangle {
     id: iconCircle
-    width: hasIcon ? pillHeight : 0
+    width: root.iconAreaWidth
     height: pillHeight
     radius: Math.min(Style.radiusL, width / 2)
     color: "transparent" // Make icon background transparent to avoid double opacity
@@ -188,15 +195,22 @@ Item {
     // iconPosition takes precedence, fallback to oppositeDirection
     x: iconPosition ? (iconPosition === "right" ? (parent.width - width) : 0) : (oppositeDirection ? 0 : (parent.width - width))
 
-    NIcon {
-      icon: root.icon
-      pointSize: iconSize
-      applyUiScale: false
-      color: root.iconFgColor
-      // Center horizontally
-      x: (iconCircle.width - width) / 2
-      // Center vertically accounting for font metrics
-      y: (iconCircle.height - height) / 2 + (height - contentHeight) / 2
+    Repeater {
+      model: root.iconList
+
+      NIcon {
+        required property int index
+        required property var modelData
+
+        icon: modelData
+        pointSize: root.iconSize
+        applyUiScale: false
+        color: root.iconFgColor
+        // Each glyph is centred in its own pillHeight-wide cell.
+        x: index * root.pillHeight + (root.pillHeight - width) / 2
+        // Center vertically accounting for font metrics
+        y: (iconCircle.height - height) / 2 + (height - contentHeight) / 2
+      }
     }
   }
 
