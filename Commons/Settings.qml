@@ -337,6 +337,10 @@ Singleton {
       property list<string> lockScreenMonitors: [] // holds lock screen visibility per monitor
       property real lockScreenBlur: 0.0
       property real lockScreenTint: 0.0
+      // Noctalia Greeter sync (Settings > Lock Screen > Login screen)
+      property JsonObject greeterSync: JsonObject {
+        property bool autoSync: false
+      }
       property JsonObject keybinds: JsonObject {
         property list<string> keyUp: ["Up"]
         property list<string> keyDown: ["Down"]
@@ -740,6 +744,12 @@ Singleton {
       property bool enableDdcSupport: false
       property list<var> backlightDeviceMappings: []
       // Format: [{ "output": "eDP-1", "device": "/sys/class/backlight/intel_backlight" }]
+    }
+
+    // monitor layout (Settings > Display > Monitors)
+    property JsonObject display: JsonObject {
+      property bool persistLayout: true
+      property bool snapToEdges: true
     }
 
     property JsonObject colorSchemes: JsonObject {

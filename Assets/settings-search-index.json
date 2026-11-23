@@ -2724,5 +2724,68 @@
     "tabLabel": "common.wallpaper",
     "subTab": 1,
     "subTabLabel": "common.look"
+  },
+  {
+    "labelKey": "panels.display.monitors-heading",
+    "descriptionKey": "panels.display.monitors-heading-desc",
+    "widget": "NText",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-mode-label",
+    "descriptionKey": "panels.display.monitors-mode-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-scale-label",
+    "descriptionKey": "panels.display.monitors-scale-desc",
+    "widget": "NValueSlider",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-rotation-label",
+    "descriptionKey": "panels.display.monitors-rotation-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-mirror-label",
+    "descriptionKey": "panels.display.monitors-mirror-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-persist-label",
+    "descriptionKey": "panels.display.monitors-persist-search-desc",
+    "widget": "NToggle",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.lock-screen.greeter-heading",
+    "descriptionKey": "panels.lock-screen.greeter-desc",
+    "widget": "NText",
+    "tab": 11,
+    "tabLabel": "panels.lock-screen.title",
+    "subTab": 3,
+    "subTabLabel": "panels.lock-screen.greeter-nav"
   }
 ]

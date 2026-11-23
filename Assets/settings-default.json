@@ -142,7 +142,10 @@
       ]
     },
     "reverseScroll": false,
-    "smoothScrollEnabled": true
+    "smoothScrollEnabled": true,
+    "greeterSync": {
+      "autoSync": false
+    }
   },
   "ui": {
     "fontDefault": "",
@@ -498,6 +501,10 @@
     "enforceMinimum": true,
     "enableDdcSupport": false,
     "backlightDeviceMappings": []
+  },
+  "display": {
+    "persistLayout": true,
+    "snapToEdges": true
   },
   "colorSchemes": {
     "useWallpaperColors": false,

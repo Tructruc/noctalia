@@ -51,7 +51,7 @@ the plugin API allows:
 | Plugin | Lines | Intent |
 |---|---|---|
 | `keybind-cheatsheet` | ~4,200 | core panel |
-| `monitor-layout` | ~1,400 | core panel |
+| `monitor-layout` | ~1,400 | **done** — Settings → Display → Monitors |
 | `network-manager-vpn` | ~950 | merged into the network widget/panel |
 | `workspace-overview` | ~330 | core panel |
 | `daily-wallpaper` | ~390 | core wallpaper service |
@@ -60,6 +60,38 @@ Plugins live in `~/.config/noctalia/plugins/<name>/` and are loaded through
 `Services/Plugin/` — the integration work is mostly moving their QML under
 `Modules/Panels/` and their state under `Services/`, then wiring IPC through
 `Services/Control/IPCService.qml`.
+
+### Monitor layout
+
+`Services/Display/DisplayService.qml` owns the monitor layout instead of the
+plugin's `hyprctl` wrapper. It reads the live state (`hyprctl -j monitors all`,
+so `availableModes`, scale, transform, VRR and mirror state are real values),
+applies each output with `hyprctl eval 'hl.monitor({...})'` (0.57 has no
+`keyword monitor`), then re-reads and verifies what the compositor actually
+did. A rejection is reported per output instead of looking like success.
+
+Persistence writes the file the running config really loads: `monitors.lua`
+for Lua configs, `monitors.conf` for hyprlang ones (when both exist, both are
+written). Rules for outputs that are not connected at that moment are carried
+over from the previous files, so undocking does not erase a dock's rule. The
+settings page warns when the config does not `require("monitors")` /
+`source` the file.
+
+### Login screen
+
+`Settings → Lock Screen → Login screen` is the v4 producer for
+[Noctalia Greeter](https://github.com/noctalia-dev/noctalia-greeter)'s secure
+sync. It writes the greeter's staging contract (`sync.toml`, wallpaper files and
+`output_layout`/`output_transforms`/`output_scales`) into
+`$XDG_RUNTIME_DIR/noctalia-greeter-sync`, then invokes the installed
+`noctalia-greeter-apply-appearance --sync` helper via `pkexec`. The greeter
+performs the privileged merge; v4 never writes `/var/lib/noctalia-greeter`
+directly and does not depend on Noctalia v5.
+
+Auto-sync is opt-in and compares a payload signature, so polling the display
+state does not cause repeated Polkit prompts. The greeter itself must be
+installed and greetd configured to use `noctalia-greeter-session`; the page
+reports both.
 
 ## Upstream
 

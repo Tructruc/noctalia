@@ -9,6 +9,7 @@ RowLayout {
 
   property string label: ""
   property string description: ""
+  property real labelSize: Style.fontSizeL
   property string icon: ""
   property bool checked: false
   property bool hovering: false
@@ -30,6 +31,7 @@ RowLayout {
 
   NLabel {
     Layout.fillWidth: true
+    labelSize: root.labelSize
     label: root.label
     description: root.description
     icon: root.icon
