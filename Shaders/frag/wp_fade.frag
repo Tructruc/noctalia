@@ -13,7 +13,7 @@ layout(std140, binding = 0) uniform buf {
     float progress;
 
     // Fill mode parameters
-    float fillMode;      // 0=center, 1=crop, 2=fit, 3=stretch, 4=repeat
+    float fillMode;      // 0=center, 1=crop, 2=fit, 3=stretch, 4=repeat, 5=blur
     float imageWidth1;   // Width of source1 image
     float imageHeight1;  // Height of source1 image
     float imageWidth2;   // Width of source2 image
@@ -76,6 +76,50 @@ vec2 calculateUV(vec2 uv, float imgWidth, float imgHeight) {
     return transformedUV;
 }
 
+// ---------------------------------------------------------------
+// Mode 5: blur (contain + blurred fill)
+// The image is fitted inside the screen (contain) and the leftover
+// space is filled with a blurred, dimmed cover-scaled copy of the
+// same image, the way TVs present vertical video.
+// ---------------------------------------------------------------
+
+// Crop (cover) UV mapping, used for the blurred backdrop
+vec2 calculateCoverUV(vec2 uv, float imgWidth, float imgHeight) {
+    float scale = max(ubuf.screenWidth / imgWidth, ubuf.screenHeight / imgHeight);
+    vec2 scaledImageSize = vec2(imgWidth, imgHeight) * scale;
+    vec2 offset = (scaledImageSize - vec2(ubuf.screenWidth, ubuf.screenHeight)) / scaledImageSize;
+    return uv * (vec2(1.0) - offset) + offset * 0.5;
+}
+
+vec4 sampleBlurFill(sampler2D tex, vec2 uv, float imgWidth, float imgHeight) {
+    // Background: cover-scaled copy, blurred by sampling a deep mip level.
+    // The GPU has already box-filtered every mip texel, so this is a true
+    // area average instead of a sparse set of taps (no starburst artefacts),
+    // and it costs one texture fetch.
+    float coverScale = max(ubuf.screenWidth / imgWidth, ubuf.screenHeight / imgHeight);
+    // Pick the mip whose texels cover ~2% of the screen: the blur scale used
+    // by TVs for pillar-boxed vertical video.
+    float blurLevel = clamp(log2(max(ubuf.screenWidth, ubuf.screenHeight) * 0.02 / coverScale), 0.0, 9.0);
+    vec2 backdropUV = calculateCoverUV(uv, imgWidth, imgHeight);
+    vec4 background = textureLod(tex, clamp(backdropUV, 0.0, 1.0), blurLevel);
+    background.rgb *= 0.62;
+
+    // Foreground: fit (contain), centred
+    float fitScale = min(ubuf.screenWidth / imgWidth, ubuf.screenHeight / imgHeight);
+    vec2 fitImageSize = vec2(imgWidth, imgHeight) * fitScale;
+    vec2 fitOffset = (vec2(ubuf.screenWidth, ubuf.screenHeight) - fitImageSize) * 0.5;
+    vec2 fitUV = (uv * vec2(ubuf.screenWidth, ubuf.screenHeight) - fitOffset) / fitImageSize;
+
+    // Anti-aliased edge so the contained picture has a clean border
+    vec2 aa = max(fwidth(fitUV), vec2(0.00001));
+    vec2 insideEdge = smoothstep(vec2(0.0) - aa, aa, fitUV) * (1.0 - smoothstep(vec2(1.0) - aa, vec2(1.0) + aa, fitUV));
+    float mask = clamp(insideEdge.x * insideEdge.y, 0.0, 1.0);
+
+    // Level 0 keeps the contained picture sharp; only the backdrop is blurred
+    vec4 foreground = textureLod(tex, clamp(fitUV, 0.0, 1.0), 0.0);
+    return mix(background, foreground, mask);
+}
+
 // Sample texture with fill mode and handle out-of-bounds
 // If isSolid > 0.5, returns solidColor instead of sampling texture
 vec4 sampleWithFillMode(sampler2D tex, vec2 uv, float imgWidth, float imgHeight, float isSolid, vec4 solidColor) {
@@ -84,10 +128,15 @@ vec4 sampleWithFillMode(sampler2D tex, vec2 uv, float imgWidth, float imgHeight,
         return solidColor;
     }
 
+    // Mode 5 (blur): blurred cover backdrop behind a contained image
+    if (ubuf.fillMode > 4.5) {
+        return sampleBlurFill(tex, uv, imgWidth, imgHeight);
+    }
+
     vec2 transformedUV = calculateUV(uv, imgWidth, imgHeight);
 
     // Mode 4 (repeat): use fract() to tile the image
-    if (ubuf.fillMode > 3.5) {
+    if (ubuf.fillMode > 3.5 && ubuf.fillMode < 4.5) {
         return texture(tex, fract(transformedUV));
     }
 

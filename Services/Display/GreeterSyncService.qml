@@ -136,6 +136,10 @@ Singleton {
     var mode = String(Settings.data.wallpaper.fillMode || "crop");
     if (mode === "tile")
       return "repeat";
+    // The greeter has no blurred backdrop mode; keep the contained picture
+    // instead of falling back to a cropped one.
+    if (mode === "blur")
+      return "fit";
     if (["center", "crop", "fit", "stretch", "repeat", "span"].indexOf(mode) === -1)
       return "crop";
     return mode;

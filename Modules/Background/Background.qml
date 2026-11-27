@@ -55,7 +55,7 @@ Variants {
       // Track the original wallpaper path being transitioned to (before caching)
       property string transitioningToOriginalPath: ""
 
-      // Fillmode default is "crop"
+      // Fill mode uniform: 0=center, 1=crop, 2=fit, 3=stretch, 4=repeat, 5=blur (contain + blurred fill)
       property real fillMode: WallpaperService.getFillModeUniform()
       property vector4d fillColor: Qt.vector4d(Settings.data.wallpaper.fillColor.r, Settings.data.wallpaper.fillColor.g, Settings.data.wallpaper.fillColor.b, 1.0)
 
@@ -157,7 +157,8 @@ Variants {
 
         source: ""
         smooth: true
-        mipmap: false
+        // Mipmapped only for the blur fill mode, which samples a deep level
+        mipmap: Settings.data.wallpaper.fillMode === "blur"
         visible: false
         cache: true // Cached so Overview can share the same texture
         asynchronous: true
@@ -177,7 +178,7 @@ Variants {
 
         source: ""
         smooth: true
-        mipmap: false
+        mipmap: Settings.data.wallpaper.fillMode === "blur"
         visible: false
         cache: false // Not cached - temporary during transitions
         asynchronous: true

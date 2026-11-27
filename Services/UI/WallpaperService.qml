@@ -272,6 +272,11 @@ Singleton {
                            "uniform": 2.0
                          });
     fillModeModel.append({
+                           "key": "blur",
+                           "name": I18n.tr("wallpaper.fill-modes.blur"),
+                           "uniform": 5.0
+                         });
+    fillModeModel.append({
                            "key": "stretch",
                            "name": I18n.tr("wallpaper.fill-modes.stretch"),
                            "uniform": 3.0
@@ -318,12 +323,22 @@ Singleton {
   }
 
   // -------------------------------------------------------------------
+  // Shader uniforms for the fill modes. Kept independent of fillModeModel
+  // (which only exists for the translated settings UI) so the wallpaper can
+  // be drawn before i18n has finished loading.
+  readonly property var fillModeUniforms: ({
+                                             "center": 0.0,
+                                             "crop": 1.0,
+                                             "fit": 2.0,
+                                             "stretch": 3.0,
+                                             "repeat": 4.0,
+                                             "blur": 5.0
+                                           })
+
   function getFillModeUniform() {
-    for (var i = 0; i < fillModeModel.count; i++) {
-      const mode = fillModeModel.get(i);
-      if (mode.key === Settings.data.wallpaper.fillMode) {
-        return mode.uniform;
-      }
+    var mode = Settings.data.wallpaper.fillMode;
+    if (fillModeUniforms[mode] !== undefined) {
+      return fillModeUniforms[mode];
     }
     // Fallback to crop
     return 1.0;

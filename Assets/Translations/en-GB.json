@@ -2068,6 +2068,7 @@
     },
     "configure-directory": "Configure your wallpaper directory with images.",
     "fill-modes": {
+      "blur": "Blur (Contain)",
       "crop": "Crop (Fill)",
       "fit": "Fit (Contain)",
       "repeat": "Repeat (Tile)",
