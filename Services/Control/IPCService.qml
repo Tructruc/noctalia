@@ -10,6 +10,7 @@ import qs.Commons
 import qs.Modules.Panels.Settings
 import qs.Services.Compositor
 import qs.Services.Hardware
+import qs.Services.Keyboard
 import qs.Services.Location
 import qs.Services.Media
 import qs.Services.Networking
@@ -159,6 +160,36 @@ Singleton {
     function openTab(tab: string) {
       var parsed = root._parseSettingsTabArg(tab);
       root._settingsOpen(parsed.tab, parsed.subTab);
+    }
+  }
+
+  IpcHandler {
+    target: "clipboard"
+
+    function toggle() {
+      root.screenDetector.withCurrentScreen(screen => {
+                                              var clipboardPanel = PanelService.getPanel("clipboardPanel", screen);
+                                              clipboardPanel?.toggle(null, "Clipboard");
+                                            });
+    }
+
+    function open() {
+      root.screenDetector.withCurrentScreen(screen => {
+                                              var clipboardPanel = PanelService.getPanel("clipboardPanel", screen);
+                                              clipboardPanel?.open(null, "Clipboard");
+                                            });
+    }
+
+    function clear() {
+      ClipboardService.wipeAll();
+    }
+
+    function status(): string {
+      return JSON.stringify({
+                              "active": ClipboardService.active,
+                              "cliphistAvailable": ClipboardService.cliphistAvailable,
+                              "count": ClipboardService.items.length
+                            });
     }
   }
 

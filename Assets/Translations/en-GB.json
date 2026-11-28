@@ -72,6 +72,10 @@
       "apply-all-description": "Change brightness for every monitor when using the scroll wheel.",
       "apply-all-label": "Apply scroll changes to all monitors"
     },
+    "clipboard": {
+      "show-badge-label": "Show history indicator",
+      "show-badge-description": "Show a dot when the clipboard history has items."
+    },
     "clock": {
       "clock-display-description": "Customise your clock's display by adding tokens from the list below. To use the 12-hour format, you must include the 'AP' token.",
       "clock-display-label": "Clock display",
@@ -389,6 +393,47 @@
       "version": "Version {version}",
       "version-new-user": "Fresh install"
     }
+  },
+  "clipboard": {
+    "categories": {
+      "all": "All",
+      "text": "Text",
+      "image": "Images",
+      "link": "Links",
+      "file": "Files",
+      "code": "Code",
+      "color": "Colors"
+    },
+    "types": {
+      "text": "Text",
+      "image": "Image",
+      "link": "Link",
+      "file": "File",
+      "code": "Code",
+      "color": "Color"
+    },
+    "search-placeholder": "Search clipboard history…",
+    "item-count": "{count} items",
+    "empty-title": "Clipboard is empty",
+    "empty-description": "Copy something to see it here.",
+    "no-match-title": "No matching items",
+    "no-match-description": "Try a different search or filter.",
+    "loading-title": "Loading clipboard history…",
+    "loading-description": "Reading entries from cliphist.",
+    "disabled-title": "Clipboard history is disabled",
+    "disabled-description": "Enable clipboard history to start collecting items.",
+    "missing-title": "cliphist is not installed",
+    "missing-description": "Install cliphist and wl-clipboard to use clipboard history.",
+    "enable": "Enable clipboard history",
+    "copy": "Copy",
+    "paste": "Paste",
+    "delete": "Delete",
+    "select-item": "Select an item to preview it here.",
+    "clear-history": "Clear clipboard history",
+    "clear-confirm": "Click again to clear",
+    "settings": "Clipboard settings",
+    "hint": "↑↓ Navigate · Enter copy · Del delete · Esc close",
+    "hint-paste": "↑↓ Navigate · Enter copy · Ctrl+Enter paste · Del delete · Esc close"
   },
   "common": {
     "actions": "Actions",
@@ -2038,6 +2083,7 @@
     "noctalia-performance-enabled": "Noctalia performance mode",
     "open-annotation-tool": "Open with annotation tool",
     "open-control-center": "Control centre",
+    "open-clipboard": "Clipboard history",
     "open-notification-history-enable-dnd": "Notification history",
     "open-settings": "Settings",
     "open-tray-dropdown": "System tray",

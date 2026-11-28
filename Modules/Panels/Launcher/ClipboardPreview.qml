@@ -161,6 +161,11 @@ Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
         horizontalPolicy: Settings.data.appLauncher.clipboardWrapText ? ScrollBar.AlwaysOff : ScrollBar.AsNeeded
+        // Reserve the scrollbar width unconditionally: tying it to
+        // verticalScrollable made the wrapped text width (and therefore the
+        // content height) depend on itself, which is a binding loop.
+        reserveScrollbarSpace: false
+        userRightPadding: clipboardScrollView.handleWidth + Style.marginXS
 
         NText {
           text: fullContent

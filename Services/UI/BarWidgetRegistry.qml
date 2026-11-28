@@ -17,6 +17,7 @@ Singleton {
                            "Battery": batteryComponent,
                            "Bluetooth": bluetoothComponent,
                            "Brightness": brightnessComponent,
+                           "Clipboard": clipboardComponent,
                            "Clock": clockComponent,
                            "ControlCenter": controlCenterComponent,
                            "CustomButton": customButtonComponent,
@@ -50,6 +51,7 @@ Singleton {
                                      "Battery": "WidgetSettings/BatterySettings.qml",
                                      "Bluetooth": "WidgetSettings/BluetoothSettings.qml",
                                      "Brightness": "WidgetSettings/BrightnessSettings.qml",
+                                     "Clipboard": "WidgetSettings/ClipboardSettings.qml",
                                      "Clock": "WidgetSettings/ClockSettings.qml",
                                      "ControlCenter": "WidgetSettings/ControlCenterSettings.qml",
                                      "CustomButton": "WidgetSettings/CustomButtonSettings.qml",
@@ -111,6 +113,10 @@ Singleton {
                                     "iconColor": "none",
                                     "textColor": "none",
                                     "applyToAllMonitors": false
+                                  },
+                                  "Clipboard": {
+                                    "showBadge": true,
+                                    "iconColor": "none"
                                   },
                                   "Clock": {
                                     "clockColor": "none",
@@ -337,6 +343,9 @@ Singleton {
   }
   property Component brightnessComponent: Component {
     Brightness {}
+  }
+  property Component clipboardComponent: Component {
+    Clipboard {}
   }
   property Component clockComponent: Component {
     Clock {}

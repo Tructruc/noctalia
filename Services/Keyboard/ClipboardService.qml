@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import qs.Services.System
 import qs.Services.UI
 
 // Clipboard history service using cliphist + local content cache
@@ -91,6 +92,7 @@ Singleton {
   onActiveChanged: {
     if (root.active) {
       startWatchers();
+      Qt.callLater(() => root.list());
     } else {
       stopWatchers();
       loading = false;
@@ -411,7 +413,12 @@ Singleton {
       if (cb)
         cb(content);
     };
-    const idStr = String(id);
+    const idStr = root._safeId(id);
+    if (idStr === "") {
+      if (cb)
+        cb("");
+      return;
+    }
     decodeProc.command = ["cliphist", "decode", idStr];
     decodeProc.running = true;
   }
@@ -453,15 +460,30 @@ Singleton {
     root._b64CurrentCb = job.cb;
     root._b64CurrentMime = job.mime;
     root._b64CurrentId = job.id;
-    decodeB64Proc.command = ["sh", "-c", `cliphist decode ${job.id} | base64 -w 0`];
+    const idStr = root._safeId(job.id);
+    if (idStr === "") {
+      root._b64CurrentCb = null;
+      Qt.callLater(root._startNextB64);
+      return;
+    }
+    decodeB64Proc.command = ["sh", "-c", `cliphist decode ${idStr} | base64 -w 0`];
     decodeB64Proc.running = true;
+  }
+
+  function _safeId(id) {
+    const text = String(id === undefined || id === null ? "" : id).trim();
+    return /^\d+$/.test(text) ? text : "";
   }
 
   function copyToClipboard(id) {
     if (!root.cliphistAvailable) {
       return;
     }
-    copyProc.command = ["sh", "-c", `cliphist decode ${id} | wl-copy`];
+    const idStr = root._safeId(id);
+    if (idStr === "") {
+      return;
+    }
+    copyProc.command = ["sh", "-c", `cliphist decode ${idStr} | wl-copy`];
     copyProc.running = true;
   }
 
@@ -469,10 +491,21 @@ Singleton {
     if (!root.cliphistAvailable) {
       return;
     }
-    const isImage = mime && mime.startsWith("image/");
-    const typeArg = isImage ? ` --type ${mime}` : "";
+    const idStr = root._safeId(id);
+    if (idStr === "") {
+      return;
+    }
+    // Without wtype, pasting is impossible; copying is still useful and the
+    // caller should not have to guess whether the tool is installed.
+    if (!ProgramCheckerService.wtypeAvailable) {
+      copyToClipboard(idStr);
+      return;
+    }
+    const isImage = mime && /^image\//.test(mime);
+    const safeMime = isImage && /^image\/[A-Za-z0-9.+-]+$/.test(mime) ? mime : "";
+    const typeArg = safeMime ? ` --type ${safeMime}` : "";
     const pasteKeys = isImage ? "wtype -M ctrl -k v" : "wtype -M ctrl -M shift v";
-    const cmd = `cliphist decode ${id} | wl-copy${typeArg} && ${pasteKeys}`;
+    const cmd = `cliphist decode ${idStr} | wl-copy${typeArg} && ${pasteKeys}`;
     pasteProc.command = ["sh", "-c", cmd];
     pasteProc.running = true;
   }
@@ -493,7 +526,10 @@ Singleton {
     if (deleteProc.running) {
       return;
     }
-    const idStr = String(id).trim();
+    const idStr = root._safeId(id);
+    if (idStr === "") {
+      return;
+    }
     // Remove from caches
     delete root.contentCache[idStr];
     delete root.imageDataById[idStr];
