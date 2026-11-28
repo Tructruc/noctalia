@@ -39,6 +39,7 @@ Singleton {
   property string _source: ""
   property string _date: ""
   property string _path: ""
+  property string _partPath: ""
   property string _url: ""
   property string _fallbackUrl: ""
   property string _resolving: ""
@@ -123,7 +124,7 @@ Singleton {
     // Ask the filesystem whether today's image is already here. A Process is
     // used rather than XMLHttpRequest because Qt's XHR does not resolve
     // file:// URLs, which made every check re-download.
-    existsProc.command = ["test", "-f", path];
+    existsProc.command = ["test", "-s", path];
     existsProc.running = true;
   }
 
@@ -180,10 +181,36 @@ Singleton {
     apply(path, date);
   }
 
+  function _isHttpUrl(url) {
+    return /^https?:\/\//i.test(String(url || "").trim());
+  }
+
+  function _removePartial() {
+    if (_partPath !== "") {
+      Quickshell.execDetached(["rm", "-f", _partPath]);
+    }
+    // A failed transfer must never leave something at the final path that the
+    // next "does today's image exist?" check would happily apply.
+    if (_path !== "") {
+      Quickshell.execDetached(["rm", "-f", _path]);
+    }
+  }
+
   function _beginDownload(url, fallbackUrl) {
+    url = String(url || "").trim();
+    fallbackUrl = String(fallbackUrl || "").trim();
+    if (!_isHttpUrl(url)) {
+      _fail("Refusing non-http image URL");
+      return;
+    }
     _url = url;
-    _fallbackUrl = fallbackUrl || "";
-    downloadProc.command = ["sh", "-c", "mkdir -p '" + targetDirectory() + "' && curl -fsSL --max-time 120 -o '" + _path + "' '" + _url + "'"];
+    _fallbackUrl = _isHttpUrl(fallbackUrl) ? fallbackUrl : "";
+    // Download beside the final file and rename only after a clean exit, so a
+    // dropped connection can never be picked up as today's wallpaper.
+    _partPath = _path + ".part";
+    // argv, not sh: the wallpaper directory comes from settings and the URL
+    // comes from the network, so neither may be interpolated into a shell.
+    downloadProc.command = ["curl", "-fsSL", "--max-time", "120", "--create-dirs", "-o", _partPath, "--", _url];
     downloadProc.running = true;
   }
 
@@ -251,7 +278,8 @@ Singleton {
   // ---------------------------------------------------------------- cleanup
   function cleanup() {
     var days = Math.max(1, Settings.data.wallpaper.dailyWallpaperKeepDays || 5);
-    cleanupProc.command = ["sh", "-c", "find '" + targetDirectory() + "' -maxdepth 1 -name 'daily-*.jpg' -type f -mtime +" + days + " -delete"];
+    // argv again: the directory may contain spaces or quotes.
+    cleanupProc.command = ["find", targetDirectory(), "-maxdepth", "1", "-name", "daily-*.jpg", "-type", "f", "-mtime", "+" + days, "-delete"];
     cleanupProc.running = true;
   }
 
@@ -379,10 +407,25 @@ Singleton {
           root._beginDownload(fb, "");
           return;
         }
+        root._removePartial();
         root._fail("Download failed (exit " + exitCode + ") for " + root._url);
         return;
       }
-      Logger.i("DailyWallpaper", "Downloaded", root._path);
+      Logger.i("DailyWallpaper", "Downloaded", root._path + ", finalizing");
+      moveProc.command = ["mv", "-f", root._partPath, root._path];
+      moveProc.running = true;
+    }
+  }
+
+  Process {
+    id: moveProc
+    running: false
+    onExited: (exitCode, _status) => {
+      if (exitCode !== 0) {
+        root._removePartial();
+        root._fail("Could not finalize download (exit " + exitCode + ")");
+        return;
+      }
       root.cleanup();
       root._succeed(root._path, root._date);
     }

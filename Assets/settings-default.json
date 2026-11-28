@@ -238,7 +238,12 @@
     "wallhavenResolutionWidth": "",
     "wallhavenResolutionHeight": "",
     "sortOrder": "name",
-    "favorites": []
+    "favorites": [],
+    "dailyWallpaperEnabled": false,
+    "dailyWallpaperSource": "nasa-apod",
+    "dailyWallpaperLocale": "",
+    "dailyWallpaperKeepDays": 5,
+    "dailyWallpaperDirectory": ""
   },
   "appLauncher": {
     "enableClipboardHistory": false,

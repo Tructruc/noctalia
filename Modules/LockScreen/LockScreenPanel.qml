@@ -42,6 +42,12 @@ Item {
   property bool timerActive: false
   property int timeRemaining: 0
   readonly property bool weatherReady: Settings.data.location.weatherEnabled && (LocationService.data.weather !== null)
+  // The weather service is null until the first fetch (and stays null when
+  // weather is disabled). These guards stop the bindings below throwing
+  // while the whole weather block is still built but hidden.
+  readonly property var weatherNow: weatherReady ? LocationService.data.weather : null
+  readonly property var currentWeather: (weatherNow && weatherNow.current_weather) ? weatherNow.current_weather : null
+  readonly property var dailyWeather: (weatherNow && weatherNow.daily) ? weatherNow.daily : null
 
   // Timer management functions
   function startTimer(action) {
@@ -254,7 +260,7 @@ Item {
         Rectangle {
           Layout.preferredWidth: 220
           // Expand to take remaining space when weather is hidden
-          Layout.fillWidth: !(Settings.data.location.weatherEnabled && LocationService.data.weather !== null)
+          Layout.fillWidth: !weatherReady
           Layout.preferredHeight: 50
           radius: Style.radiusL
           color: "transparent"
@@ -484,7 +490,7 @@ Item {
 
         // Current weather
         RowLayout {
-          visible: Settings.data.location.weatherEnabled && LocationService.data.weather !== null
+          visible: weatherReady
           Layout.preferredWidth: 180
           spacing: Style.marginM
 
@@ -497,12 +503,12 @@ Item {
             NIcon {
               visible: !LocationService.taliaWeatherMascotActive || !weatherReady
               anchors.centerIn: parent
-              icon: weatherReady ? LocationService.weatherSymbolFromCode(LocationService.data.weather.current_weather.weathercode) : "weather-cloud-off"
+              icon: currentWeather ? LocationService.weatherSymbolFromCode(currentWeather.weathercode) : "weather-cloud-off"
               pointSize: Style.fontSizeXXXL
               color: Color.mPrimary
             }
             Loader {
-              active: LocationService.taliaWeatherMascotActive && weatherReady
+              active: LocationService.taliaWeatherMascotActive && currentWeather !== null
               anchors.fill: parent
               asynchronous: true
               sourceComponent: Component {
@@ -512,7 +518,7 @@ Item {
                   smooth: true
                   mipmap: true
                   asynchronous: true
-                  source: Qt.resolvedUrl(LocationService.taliaWeatherImageFromCode(LocationService.data.weather.current_weather.weathercode))
+                  source: currentWeather ? Qt.resolvedUrl(LocationService.taliaWeatherImageFromCode(currentWeather.weathercode)) : ""
                 }
               }
             }
@@ -528,7 +534,9 @@ Item {
 
               NText {
                 text: {
-                  var temp = LocationService.data.weather.current_weather.temperature;
+                  if (!currentWeather)
+                    return "";
+                  var temp = currentWeather.temperature;
                   var suffix = "C";
                   if (Settings.data.location.useFahrenheit) {
                     temp = LocationService.celsiusToFahrenheit(temp);
@@ -544,7 +552,9 @@ Item {
 
               NText {
                 text: {
-                  var wind = LocationService.data.weather.current_weather.windspeed;
+                  if (!currentWeather)
+                    return "";
+                  var wind = currentWeather.windspeed;
                   var unit = "km/h";
                   if (Settings.data.location.useFahrenheit) {
                     wind = wind * 0.621371; // Convert km/h to mph
@@ -570,7 +580,7 @@ Item {
               }
 
               NText {
-                text: (LocationService.data.weather.current && LocationService.data.weather.current.relativehumidity_2m) ? LocationService.data.weather.current.relativehumidity_2m + "% humidity" : ""
+                text: (weatherNow && weatherNow.current && weatherNow.current.relativehumidity_2m) ? weatherNow.current.relativehumidity_2m + "% humidity" : ""
                 pointSize: Style.fontSizeM
                 color: Color.mOnSurfaceVariant
               }
@@ -580,20 +590,24 @@ Item {
 
         // Forecast
         RowLayout {
-          visible: Settings.data.location.weatherEnabled && LocationService.data.weather !== null
+          visible: weatherReady
           Layout.preferredWidth: 260
           Layout.rightMargin: 8
           spacing: Style.marginXS
 
           Repeater {
-            model: MediaService.currentPlayer && MediaService.canPlay ? 2 : 4
+            model: dailyWeather ? (MediaService.currentPlayer && MediaService.canPlay ? 2 : 4) : 0
             delegate: ColumnLayout {
               Layout.fillWidth: true
               spacing: Style.marginXXS + 1
 
+              readonly property bool hasDay: !!(dailyWeather && dailyWeather.time && dailyWeather.time.length > index && dailyWeather.weathercode && dailyWeather.weathercode.length > index && dailyWeather.temperature_2m_max && dailyWeather.temperature_2m_max.length > index && dailyWeather.temperature_2m_min && dailyWeather.temperature_2m_min.length > index)
+
               NText {
                 text: {
-                  var weatherDate = new Date(LocationService.data.weather.daily.time[index].replace(/-/g, "/"));
+                  if (!hasDay)
+                    return "";
+                  var weatherDate = new Date(dailyWeather.time[index].replace(/-/g, "/"));
                   return I18n.locale.toString(weatherDate, "ddd");
                 }
                 pointSize: Style.fontSizeM
@@ -611,12 +625,12 @@ Item {
                 NIcon {
                   visible: !LocationService.taliaWeatherMascotActive
                   anchors.centerIn: parent
-                  icon: LocationService.weatherSymbolFromCode(LocationService.data.weather.daily.weathercode[index])
+                  icon: hasDay ? LocationService.weatherSymbolFromCode(dailyWeather.weathercode[index]) : "weather-cloud-off"
                   pointSize: Style.fontSizeXL
                   color: Color.mOnSurfaceVariant
                 }
                 Loader {
-                  active: LocationService.taliaWeatherMascotActive
+                  active: LocationService.taliaWeatherMascotActive && hasDay
                   anchors.fill: parent
                   asynchronous: true
                   sourceComponent: Component {
@@ -626,7 +640,7 @@ Item {
                       smooth: true
                       mipmap: true
                       asynchronous: true
-                      source: Qt.resolvedUrl(LocationService.taliaWeatherImageFromCode(LocationService.data.weather.daily.weathercode[index]))
+                      source: hasDay ? Qt.resolvedUrl(LocationService.taliaWeatherImageFromCode(dailyWeather.weathercode[index])) : ""
                     }
                   }
                 }
@@ -634,8 +648,10 @@ Item {
 
               NText {
                 text: {
-                  var max = LocationService.data.weather.daily.temperature_2m_max[index];
-                  var min = LocationService.data.weather.daily.temperature_2m_min[index];
+                  if (!hasDay)
+                    return "";
+                  var max = dailyWeather.temperature_2m_max[index];
+                  var min = dailyWeather.temperature_2m_min[index];
                   if (Settings.data.location.useFahrenheit) {
                     max = LocationService.celsiusToFahrenheit(max);
                     min = LocationService.celsiusToFahrenheit(min);

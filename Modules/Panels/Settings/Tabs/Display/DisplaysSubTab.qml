@@ -549,13 +549,13 @@ ColumnLayout {
         output: root.selectedOutput
         outputs: root.layout
         busy: root.busy
-        onEnabledChanged: function (value) {
+        onOutputEnabledChanged: function (value) {
           root.setEnabled(root.selectedName, value);
         }
         onModeSelected: function (width, height, refresh) {
           root.setMode(root.selectedName, width, height, refresh);
         }
-        onScaleChanged: function (value) {
+        onOutputScaleChanged: function (value) {
           root.setScale(root.selectedName, value);
         }
         onTransformChanged: function (value) {

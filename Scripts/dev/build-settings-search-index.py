@@ -8,7 +8,8 @@ Parses settings tab QML files to extract searchable metadata
 Output: Assets/settings-search-index.json
 
 Usage:
-  python Scripts/dev/build-settings-search-index.py
+  python Scripts/dev/build-settings-search-index.py          # regenerate
+  python Scripts/dev/build-settings-search-index.py --check  # fail if stale
 """
 
 import json
@@ -36,13 +37,20 @@ WIDGET_TYPES = (
     "HookRow",
 )
 
+# Section headings: NText widgets use text: instead of label:, and only
+# "-heading" keys are searchable section titles (the other NTexts are prose).
+HEADING_TYPES = ("NText",)
+
 # Regex patterns
 RE_WIDGET_OPEN = re.compile(
-    r"^\s*(" + "|".join(WIDGET_TYPES) + r")\s*\{", re.MULTILINE
+    r"^\s*(" + "|".join(WIDGET_TYPES + HEADING_TYPES) + r")\s*\{", re.MULTILINE
 )
 RE_LABEL = re.compile(r'label:\s*I18n\.tr\("([^"]+)"')
-RE_DESCRIPTION = re.compile(r'description:\s*I18n\.tr\("([^"]+)"')
+RE_TEXT = re.compile(r'text:\s*I18n\.tr\("([^"]+)"')
 RE_VISIBLE = re.compile(r'^\s*visible:\s*(.+?)(?:\s*;)?\s*$')
+RE_COMPONENT_OPEN = re.compile(r"^\s*([A-Z]\w*)\s*\{", re.MULTILINE)
+RE_DESCRIPTION_LINE = re.compile(r"description:\s*([^\n]+)")
+HELPER_EXCLUDE_SUFFIXES = ("Popup", "Dialog", "Window", "Menu")
 
 # Prefixes that indicate externally-resolvable conditions (singleton services or globals).
 # Conditions referencing local variables (root., parent., model, index, etc.) are skipped.
@@ -337,30 +345,124 @@ def extract_widget_blocks(content: str) -> list[tuple[str, str, int]]:
     return results
 
 
+def build_component_file_map() -> dict[str, Path]:
+    """Map QML type name -> file for every file under Tabs/."""
+    return {path.stem: path for path in TABS_DIR.rglob("*.qml")}
+
+
+def referenced_components(qml_file: Path, component_files: dict[str, Path]) -> list[Path]:
+    """
+    Helper components instantiated by qml_file (same directory/subtree).
+
+    Popups and dialogs are skipped on purpose: their fields live in a transient
+    overlay the settings focus ring cannot reach, so indexing them produces
+    results that cannot be focused.
+    """
+    refs = []
+    content = qml_file.read_text()
+    for match in RE_COMPONENT_OPEN.finditer(content):
+        type_name = match.group(1)
+        if type_name.endswith(HELPER_EXCLUDE_SUFFIXES):
+            continue
+        ref = component_files.get(type_name)
+        if ref is None or ref == qml_file:
+            continue
+        if ref.parent == qml_file.parent or qml_file.parent in ref.parents:
+            refs.append(ref)
+    return refs
+
+
+def build_context_map(
+    type_to_index: dict[str, int],
+    type_to_label: dict[str, str],
+    component_files: dict[str, Path],
+) -> dict[Path, tuple[int | None, str | None, int | None, str | None]]:
+    """
+    Resolve a tab/sub-tab context for helper components too.
+
+    A subtab such as DisplaysSubTab instantiates DisplayOutputInspector; that
+    helper has no "SubTab" name of its own, so it inherits the subtab context
+    instead of being skipped.
+    """
+    contexts = {}
+    for qml_file in sorted(TABS_DIR.rglob("*.qml")):
+        context = resolve_tab_info(qml_file, type_to_index, type_to_label)
+        if context[0] is not None:
+            contexts[qml_file] = context
+
+    # Prefer sub-tab contexts over parent-tab contexts, then propagate until
+    # every referenced helper has a context.
+    changed = True
+    while changed:
+        changed = False
+        for qml_file, context in sorted(
+            contexts.items(), key=lambda item: item[1][2] is None
+        ):
+            for ref in referenced_components(qml_file, component_files):
+                if ref not in contexts:
+                    contexts[ref] = context
+                    changed = True
+    return contexts
+
+
 def extract_entries(
     qml_file: Path,
     type_to_index: dict[str, int],
     type_to_label: dict[str, str],
+    context_map: dict[Path, tuple[int | None, str | None, int | None, str | None]],
 ) -> list[dict]:
     """Extract all searchable settings entries from a QML file."""
-    tab_index, tab_label, sub_tab, sub_tab_label = resolve_tab_info(
-        qml_file, type_to_index, type_to_label
-    )
+    context = context_map.get(qml_file)
+    if context is None:
+        context = resolve_tab_info(qml_file, type_to_index, type_to_label)
+    tab_index, tab_label, sub_tab, sub_tab_label = context
     if tab_index is None:
         return []
 
     content = qml_file.read_text()
     scope_vis = build_scope_visibility(content)
+    blocks = extract_widget_blocks(content)
     entries = []
 
-    for widget_type, block, start_line in extract_widget_blocks(content):
-        label_match = RE_LABEL.search(block)
-        if not label_match:
-            continue
+    # Resolve every block's label/text first: a heading is paired with the
+    # description text rendered immediately below it.
+    block_keys = []
+    for widget_type, block, _start_line in blocks:
+        match = RE_TEXT.search(block) if widget_type in HEADING_TYPES else RE_LABEL.search(block)
+        block_keys.append(match.group(1) if match else None)
 
-        label_key = label_match.group(1)
-        desc_match = RE_DESCRIPTION.search(block)
-        desc_key = desc_match.group(1) if desc_match else None
+    for block_index, (widget_type, block, start_line) in enumerate(blocks):
+        if widget_type in HEADING_TYPES:
+            label_key = block_keys[block_index]
+            if not label_key or not label_key.endswith("-heading"):
+                continue
+            desc_key = None
+            if (
+                block_index + 1 < len(blocks)
+                and blocks[block_index + 1][0] in HEADING_TYPES
+            ):
+                candidate = block_keys[block_index + 1]
+                if candidate and candidate in (
+                    label_key + "-desc",
+                    label_key.replace("-heading", "-desc"),
+                ):
+                    desc_key = candidate
+        else:
+            label_key = block_keys[block_index]
+            if not label_key:
+                continue
+            desc_key = None
+            desc_line = RE_DESCRIPTION_LINE.search(block)
+            if desc_line:
+                desc_expr = desc_line.group(1)
+                # Only the default branch of a conditional describes the
+                # control; a state-only branch (e.g. "scanning") or an empty
+                # one must not become the search description.
+                if "?" in desc_expr and ":" in desc_expr:
+                    desc_expr = desc_expr.rsplit(":", 1)[-1]
+                tr_keys = re.findall(r'I18n\.tr\("([^"]+)"', desc_expr)
+                if tr_keys:
+                    desc_key = tr_keys[-1]
 
         # Collect visibility conditions: ancestor scopes + widget's own visible:
         conditions = list(scope_vis.get(start_line, []))
@@ -413,24 +515,37 @@ def main():
 
     print(f"Parsed {len(type_to_index)} tab types from SettingsContent.qml")
 
+    component_files = build_component_file_map()
+    context_map = build_context_map(type_to_index, type_to_label, component_files)
+
     all_entries = []
     seen_labels = set()
 
     # Scan all QML files in Tabs/ (recursive)
     for qml_file in sorted(TABS_DIR.rglob("*.qml")):
-        entries = extract_entries(qml_file, type_to_index, type_to_label)
+        entries = extract_entries(qml_file, type_to_index, type_to_label, context_map)
         for entry in entries:
             if entry["labelKey"] not in seen_labels:
                 seen_labels.add(entry["labelKey"])
                 all_entries.append(entry)
 
-    # Write output
+    output = json.dumps(all_entries, indent=2)
+
+    if "--check" in sys.argv[1:]:
+        current = OUTPUT.read_text() if OUTPUT.exists() else ""
+        if current != output:
+            print(
+                "Settings search index is out of date; run "
+                "Scripts/dev/build-settings-search-index.py",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        print(f"Settings search index is up to date ({len(all_entries)} entries)")
+        return
+
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT, "w") as f:
-        json.dump(all_entries, f, indent=2)
-
-    print(f"Generated {len(all_entries)} entries -> {OUTPUT.relative_to(ROOT)}")
-
+    OUTPUT.write_text(output)
+    print(f"Generated {len(all_entries)} entries -> {OUTPUT}")
 
 if __name__ == "__main__":
     main()

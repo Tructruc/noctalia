@@ -687,6 +687,177 @@
     ]
   },
   {
+    "labelKey": "panels.vpn.title",
+    "descriptionKey": "panels.vpn.description",
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.tailscale",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.tailscale-peers-online",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.tailscale-exit-node",
+    "descriptionKey": "panels.vpn.tailscale-exit-node-desc",
+    "widget": "NComboBox",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.create",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.type",
+    "descriptionKey": "panels.vpn.type-desc",
+    "widget": "NComboBox",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.name",
+    "descriptionKey": "panels.vpn.name-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.gateway",
+    "descriptionKey": "panels.vpn.gateway-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.username",
+    "descriptionKey": "panels.vpn.username-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.password",
+    "descriptionKey": "panels.vpn.password-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.private-key",
+    "descriptionKey": "panels.vpn.private-key-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.address",
+    "descriptionKey": "panels.vpn.address-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.peer-public-key",
+    "descriptionKey": "panels.vpn.peer-public-key-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.peer-endpoint",
+    "descriptionKey": "panels.vpn.peer-endpoint-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.allowed-ips",
+    "descriptionKey": "panels.vpn.allowed-ips-desc",
+    "widget": "NTextInput",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.autoconnect",
+    "descriptionKey": "panels.vpn.autoconnect-desc",
+    "widget": "NToggle",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.edit",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.empty",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
+    "labelKey": "panels.vpn.delete-confirm",
+    "descriptionKey": null,
+    "widget": "NLabel",
+    "tab": 16,
+    "tabLabel": "panels.connections.title",
+    "subTab": 2,
+    "subTabLabel": "common.vpn"
+  },
+  {
     "labelKey": "common.wifi",
     "descriptionKey": null,
     "widget": "NToggle",
@@ -908,6 +1079,96 @@
     "tabLabel": "panels.display.title",
     "subTab": 0,
     "subTabLabel": "common.brightness"
+  },
+  {
+    "labelKey": "panels.display.monitors-enabled-label",
+    "descriptionKey": "panels.display.monitors-enabled-desc",
+    "widget": "NToggle",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-mode-label",
+    "descriptionKey": "panels.display.monitors-mode-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-scale-label",
+    "descriptionKey": "panels.display.monitors-scale-desc",
+    "widget": "NValueSlider",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-rotation-label",
+    "descriptionKey": "panels.display.monitors-rotation-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-position-x-label",
+    "descriptionKey": null,
+    "widget": "NTextInput",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-position-y-label",
+    "descriptionKey": null,
+    "widget": "NTextInput",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-vrr-label",
+    "descriptionKey": "panels.display.monitors-vrr-desc",
+    "widget": "NToggle",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-mirror-label",
+    "descriptionKey": "panels.display.monitors-mirror-desc",
+    "widget": "NComboBox",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-heading",
+    "descriptionKey": "panels.display.monitors-heading-desc",
+    "widget": "NText",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
+  },
+  {
+    "labelKey": "panels.display.monitors-persist-label",
+    "descriptionKey": "panels.display.monitors-persist-desc",
+    "widget": "NToggle",
+    "tab": 15,
+    "tabLabel": "panels.display.title",
+    "subTab": 2,
+    "subTabLabel": "panels.display.monitors-nav"
   },
   {
     "labelKey": "panels.display.night-light-enable-label",
@@ -1809,6 +2070,24 @@
     ]
   },
   {
+    "labelKey": "panels.lock-screen.greeter-heading",
+    "descriptionKey": "panels.lock-screen.greeter-desc",
+    "widget": "NText",
+    "tab": 11,
+    "tabLabel": "panels.lock-screen.title",
+    "subTab": 3,
+    "subTabLabel": "panels.lock-screen.greeter-nav"
+  },
+  {
+    "labelKey": "panels.lock-screen.greeter-auto",
+    "descriptionKey": "panels.lock-screen.greeter-auto-desc",
+    "widget": "NToggle",
+    "tab": 11,
+    "tabLabel": "panels.lock-screen.title",
+    "subTab": 3,
+    "subTabLabel": "panels.lock-screen.greeter-nav"
+  },
+  {
     "labelKey": "panels.notifications.duration-respect-expire-label",
     "descriptionKey": "panels.notifications.duration-respect-expire-description",
     "widget": "NToggle",
@@ -2571,6 +2850,42 @@
     "subTabLabel": "common.automation"
   },
   {
+    "labelKey": "panels.wallpaper.daily-label",
+    "descriptionKey": "panels.wallpaper.daily-description",
+    "widget": "NLabel",
+    "tab": 3,
+    "tabLabel": "common.wallpaper",
+    "subTab": 2,
+    "subTabLabel": "common.automation"
+  },
+  {
+    "labelKey": "panels.wallpaper.daily-enable-label",
+    "descriptionKey": "panels.wallpaper.daily-enable-description",
+    "widget": "NToggle",
+    "tab": 3,
+    "tabLabel": "common.wallpaper",
+    "subTab": 2,
+    "subTabLabel": "common.automation"
+  },
+  {
+    "labelKey": "panels.wallpaper.daily-source-label",
+    "descriptionKey": "panels.wallpaper.daily-source-description",
+    "widget": "NComboBox",
+    "tab": 3,
+    "tabLabel": "common.wallpaper",
+    "subTab": 2,
+    "subTabLabel": "common.automation"
+  },
+  {
+    "labelKey": "panels.wallpaper.daily-keepdays-label",
+    "descriptionKey": "panels.wallpaper.daily-keepdays-description",
+    "widget": "NSpinBox",
+    "tab": 3,
+    "tabLabel": "common.wallpaper",
+    "subTab": 2,
+    "subTabLabel": "common.automation"
+  },
+  {
     "labelKey": "panels.wallpaper.settings-enable-management-label",
     "descriptionKey": "panels.wallpaper.settings-enable-management-description",
     "widget": "NToggle",
@@ -2724,68 +3039,5 @@
     "tabLabel": "common.wallpaper",
     "subTab": 1,
     "subTabLabel": "common.look"
-  },
-  {
-    "labelKey": "panels.display.monitors-heading",
-    "descriptionKey": "panels.display.monitors-heading-desc",
-    "widget": "NText",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.display.monitors-mode-label",
-    "descriptionKey": "panels.display.monitors-mode-desc",
-    "widget": "NComboBox",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.display.monitors-scale-label",
-    "descriptionKey": "panels.display.monitors-scale-desc",
-    "widget": "NValueSlider",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.display.monitors-rotation-label",
-    "descriptionKey": "panels.display.monitors-rotation-desc",
-    "widget": "NComboBox",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.display.monitors-mirror-label",
-    "descriptionKey": "panels.display.monitors-mirror-desc",
-    "widget": "NComboBox",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.display.monitors-persist-label",
-    "descriptionKey": "panels.display.monitors-persist-search-desc",
-    "widget": "NToggle",
-    "tab": 15,
-    "tabLabel": "panels.display.title",
-    "subTab": 2,
-    "subTabLabel": "panels.display.monitors-nav"
-  },
-  {
-    "labelKey": "panels.lock-screen.greeter-heading",
-    "descriptionKey": "panels.lock-screen.greeter-desc",
-    "widget": "NText",
-    "tab": 11,
-    "tabLabel": "panels.lock-screen.title",
-    "subTab": 3,
-    "subTabLabel": "panels.lock-screen.greeter-nav"
   }
 ]

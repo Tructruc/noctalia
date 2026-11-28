@@ -17,9 +17,9 @@ ColumnLayout {
   property string xText: ""
   property string yText: ""
 
-  signal enabledChanged(bool value)
+  signal outputEnabledChanged(bool value)
   signal modeSelected(int width, int height, real refresh)
-  signal scaleChanged(real value)
+  signal outputScaleChanged(real value)
   signal transformChanged(int value)
   signal positionChanged(int x, int y)
   signal vrrChanged(bool value)
@@ -141,7 +141,7 @@ ColumnLayout {
     description: I18n.tr("panels.display.monitors-enabled-desc")
     checked: root.hasOutput ? root.output.enabled === true : false
     onToggled: function (checked) {
-      root.enabledChanged(checked);
+      root.outputEnabledChanged(checked);
     }
   }
 
@@ -181,7 +181,7 @@ ColumnLayout {
     text: root.scaleText
     onMoved: function (value) {
       root.localScale = value;
-      root.scaleChanged(value);
+      root.outputScaleChanged(value);
     }
   }
 
